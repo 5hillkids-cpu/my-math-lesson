@@ -953,6 +953,7 @@ function App() {
                     ${usesPlaceValueGrid
                       ? html`<${PlaceValueInput}
                           compact=${true}
+                          showGuides=${false}
                           className=${`mini-answer place-value-input ${normalizeAnswer(deckState.answers.independent[problem.id] || "") === normalizeAnswer(problem.answer) && deckState.answers.independent[problem.id] ? "success-glow" : deckState.answers.independent[problem.id] ? "error-glow" : ""}`}
                           value=${deckState.answers.independent[problem.id] || ""}
                           onInput=${(event) => handleIndependentAnswer(problem.id, problem.answer, event.target.value)}
@@ -966,7 +967,7 @@ function App() {
                         />`}
                   </div>
                 `)}
-                <p className="completion-note">${level.note}</p>
+                ${!(deck.id === "decimals") ? html`<p className="completion-note">${level.note}</p>` : null}
               </article>
             `)}
           </div>
@@ -1039,15 +1040,19 @@ function labelForSlide(slideId) {
   return labels[slideId];
 }
 
-function PlaceValueInput({ value, onInput, placeholder, className = "", compact = false }) {
+function PlaceValueInput({ value, onInput, placeholder, className = "", compact = false, showGuides = true }) {
   return html`
     <label className=${`place-value-wrap ${compact ? "compact" : ""}`}>
-      <span className="place-value-guides" aria-hidden="true">
-        <em>ones</em>
-        <em>.</em>
-        <em>tenths</em>
-        <em>hundredths</em>
-      </span>
+      ${showGuides
+        ? html`
+            <span className="place-value-guides" aria-hidden="true">
+              <em>ones</em>
+              <em>.</em>
+              <em>tenths</em>
+              <em>hundredths</em>
+            </span>
+          `
+        : null}
       <input className=${className} value=${value} onInput=${onInput} placeholder=${placeholder} inputMode="decimal" />
     </label>
   `;
