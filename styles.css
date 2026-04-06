@@ -179,6 +179,26 @@ button {
   font-size: 1rem;
 }
 
+.slide-link-copy {
+  display: grid;
+  justify-items: end;
+  gap: 6px;
+}
+
+.slide-feature-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  color: inherit;
+  font-size: 0.7rem;
+  font-style: normal;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
 .slide-link.active,
 .slide-link:hover {
   background: rgba(255, 255, 255, 0.18);
@@ -190,6 +210,11 @@ button {
   color: var(--blue-deep);
   border-color: rgba(255, 212, 56, 0.95);
   box-shadow: 0 10px 24px rgba(9, 27, 92, 0.22);
+}
+
+.slide-link.active .slide-feature-badge {
+  background: linear-gradient(180deg, #ffd438, #f9b704);
+  color: var(--blue-deep);
 }
 
 .slide-link.active::before {

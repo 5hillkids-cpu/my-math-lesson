@@ -315,16 +315,22 @@ function App() {
           <h2>Pick A Part</h2>
           <p className="picker-copy">Now choose a part of <strong>${deck.missionTheme}</strong>.</p>
           <nav className="slide-nav" aria-label="Lesson parts">
-            ${slideOrder.map((slideId, index) => html`
-              <button
-                type="button"
-                className=${`slide-link ${index === deckState.currentSlide ? "active" : ""}`}
-                onClick=${() => showSlide(index)}
-              >
-                <span>${String(index + 1).padStart(2, "0")}</span>
-                <strong>${labelForSlide(slideId)}</strong>
-              </button>
-            `)}
+            ${slideOrder.map((slideId, index) => {
+              const slideMeta = getSlideMeta(deck, slideId);
+              return html`
+                <button
+                  type="button"
+                  className=${`slide-link ${index === deckState.currentSlide ? "active" : ""}`}
+                  onClick=${() => showSlide(index)}
+                >
+                  <span>${String(index + 1).padStart(2, "0")}</span>
+                  <span className="slide-link-copy">
+                    <strong>${slideMeta.label}</strong>
+                    ${slideMeta.badge ? html`<em className="slide-feature-badge">${slideMeta.badge}</em>` : null}
+                  </span>
+                </button>
+              `;
+            })}
           </nav>
         </section>
 
@@ -848,6 +854,22 @@ function labelForSlide(slideId) {
   };
 
   return labels[slideId];
+}
+
+function getSlideMeta(deck, slideId) {
+  const defaultLabel = labelForSlide(slideId);
+  const supportsVisual = (deck.id === "fractions" || deck.id === "decimals") && slideId === "goal";
+  const supportsStory = (deck.id === "fractions" || deck.id === "decimals") && slideId === "powerup";
+
+  if (supportsVisual) {
+    return { label: "Goal + Visual Model", badge: "Visual" };
+  }
+
+  if (supportsStory) {
+    return { label: "Power-Up + Story Problems", badge: "Story" };
+  }
+
+  return { label: defaultLabel, badge: "" };
 }
 
 function IntroVisualCard({ visual }) {
