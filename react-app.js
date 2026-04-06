@@ -272,26 +272,11 @@ function App() {
           </div>
         </div>
 
-        <nav className="slide-nav" aria-label="Lesson pages">
-          ${slideOrder.map((slideId, index) => html`
-            <button
-              type="button"
-              className=${`slide-link ${index === deckState.currentSlide ? "active" : ""}`}
-              onClick=${() => showSlide(index)}
-            >
-              <span>${String(index + 1).padStart(2, "0")}</span>
-              <strong>${labelForSlide(slideId)}</strong>
-            </button>
-          `)}
-        </nav>
-
-        <section className="side-card mission-card">
-          <p className="eyebrow">Mission Theme</p>
-          <div className="mission-copy">
-            <h2>${deck.missionTheme}</h2>
-            <p>${deck.missionSummary}</p>
-          </div>
-          <div className="deck-switcher">
+        <section className="side-card picker-card">
+          <p className="eyebrow">Step 1</p>
+          <h2>Pick A Lesson</h2>
+          <p className="picker-copy">Choose which lesson deck you want to open.</p>
+          <div className="deck-switcher compact-switcher">
             ${Object.values(lessonDecks).map((item) => html`
               <button
                 type="button"
@@ -302,6 +287,32 @@ function App() {
                 <span>${item.topbarSubtitle}</span>
               </button>
             `)}
+          </div>
+        </section>
+
+        <section className="side-card lesson-parts-card">
+          <p className="eyebrow">Step 2</p>
+          <h2>Pick A Part</h2>
+          <p className="picker-copy">Now choose a part of <strong>${deck.missionTheme}</strong>.</p>
+          <nav className="slide-nav" aria-label="Lesson parts">
+            ${slideOrder.map((slideId, index) => html`
+              <button
+                type="button"
+                className=${`slide-link ${index === deckState.currentSlide ? "active" : ""}`}
+                onClick=${() => showSlide(index)}
+              >
+                <span>${String(index + 1).padStart(2, "0")}</span>
+                <strong>${labelForSlide(slideId)}</strong>
+              </button>
+            `)}
+          </nav>
+        </section>
+
+        <section className="side-card mission-card">
+          <p className="eyebrow">Current Lesson</p>
+          <div className="mission-copy">
+            <h2>${deck.missionTheme}</h2>
+            <p>${deck.missionSummary}</p>
           </div>
           <p className="question-bank-note">3 lesson decks with separate question banks and saved progress.</p>
         </section>

@@ -144,6 +144,24 @@ button {
   gap: 10px;
 }
 
+.picker-card,
+.lesson-parts-card {
+  display: grid;
+  gap: 10px;
+}
+
+.side-card h2 {
+  margin: 0;
+  font-family: "Baloo 2", cursive;
+  line-height: 1;
+  font-size: 1.55rem;
+}
+
+.picker-copy {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.82);
+}
+
 .slide-link {
   display: flex;
   align-items: center;
@@ -175,6 +193,10 @@ button {
   display: grid;
   gap: 10px;
   margin-top: 16px;
+}
+
+.compact-switcher {
+  margin-top: 4px;
 }
 
 .deck-button {
