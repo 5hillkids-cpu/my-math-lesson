@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState } from "https://esm.sh/react@18.3.1";
-import { createRoot } from "https://esm.sh/react-dom@18.3.1/client";
-import htm from "https://esm.sh/htm@3.1.1?external=react";
+import React, { useEffect, useMemo, useState } from "./vendor/react.mjs";
+import { createRoot } from "./vendor/react-dom-client.bundle.mjs";
+import htm from "./vendor/htm.bundle.mjs";
 import { lessonDecks, slideOrder } from "./lessons.js";
 
 const html = htm.bind(React.createElement);
