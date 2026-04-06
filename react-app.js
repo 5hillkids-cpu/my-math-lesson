@@ -120,7 +120,7 @@ function App() {
   function showSlide(index) {
     updateDeck((currentDeck) => ({
       ...currentDeck,
-      currentSlide: (index + slideOrder.length) % slideOrder.length,
+      currentSlide: Math.max(0, Math.min(index, slideOrder.length - 1)),
     }));
   }
 
@@ -271,6 +271,8 @@ function App() {
   ]), [deckState]);
 
   const currentSlide = slideOrder[deckState.currentSlide];
+  const isFirstSlide = deckState.currentSlide === 0;
+  const isLastSlide = deckState.currentSlide === slideOrder.length - 1;
   const powerupMessage = deck.powerup.strategyCopy[deckState.stepKey];
   function answerClass(section, id, expected) {
     const value = deckState.answers[section][id] || "";
@@ -809,14 +811,24 @@ function App() {
               </div>
             </article>
           </div>
+
+          <article className="quest-card lesson-finish-card">
+            <div className="card-heading">
+              <div className="badge-icon gold">🧭</div>
+              <div>
+                <h3>Lesson Complete</h3>
+                <p>Choose your next lesson from the left menu when you are ready to continue.</p>
+              </div>
+            </div>
+          </article>
         </section>
 
         <footer className="stage-footer">
-          <button type="button" className="nav-button" onClick=${() => showSlide(deckState.currentSlide - 1)}>← Previous</button>
+          <button type="button" className="nav-button" disabled=${isFirstSlide} onClick=${() => showSlide(deckState.currentSlide - 1)}>← Previous</button>
           <div className="dot-nav">
             ${slideOrder.map((slideId, index) => html`<button type="button" className=${index === deckState.currentSlide ? "active" : ""} onClick=${() => showSlide(index)} aria-label=${`Go to ${labelForSlide(slideId)}`}></button>`)}
           </div>
-          <button type="button" className="nav-button primary" onClick=${() => showSlide(deckState.currentSlide + 1)}>Next →</button>
+          <button type="button" className="nav-button primary" disabled=${isLastSlide} onClick=${() => showSlide(deckState.currentSlide + 1)}>${isLastSlide ? "Pick Next Lesson" : "Next →"}</button>
         </footer>
       </main>
     </div>

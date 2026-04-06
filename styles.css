@@ -1084,6 +1084,17 @@ textarea {
   color: #fff;
 }
 
+.nav-button:disabled {
+  cursor: default;
+  opacity: 0.55;
+  transform: none;
+  box-shadow: none;
+}
+
+.nav-button.primary:disabled {
+  background: linear-gradient(180deg, #8daef8, #6d8ee4);
+}
+
 .dot-nav {
   justify-content: center;
   flex: 1;
@@ -1110,6 +1121,11 @@ textarea {
 .error-glow {
   box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.16);
   border-color: var(--red);
+}
+
+.lesson-finish-card {
+  border: 3px dashed rgba(255, 190, 11, 0.5);
+  background: linear-gradient(180deg, rgba(255, 252, 235, 0.98), rgba(255, 244, 204, 0.92));
 }
 
 @keyframes fadeUp {
