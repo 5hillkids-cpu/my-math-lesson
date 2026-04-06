@@ -383,6 +383,7 @@ function App() {
         </section>
 
         <section className=${`slide-panel ${currentSlide === "goal" ? "active" : ""} theme-green`}>
+          ${deck.introVisual ? html`<${IntroVisualCard} visual=${deck.introVisual} />` : null}
           <div className="page-grid two-up">
             <article className="quest-card large">
               <div className="card-heading">
@@ -835,6 +836,53 @@ function labelForSlide(slideId) {
   };
 
   return labels[slideId];
+}
+
+function IntroVisualCard({ visual }) {
+  return html`
+    <article className="quest-card intro-visual-card">
+      <div className="card-heading">
+        <div className="badge-icon blue">🖼️</div>
+        <div>
+          <h3>${visual.title}</h3>
+          <p>${visual.description}</p>
+        </div>
+      </div>
+
+      ${visual.type === "fraction-area"
+        ? html`
+            <div className="fraction-visual-row">
+              ${visual.models.map((model) => html`
+                <div className="visual-model-card">
+                  <strong>${model.label}</strong>
+                  <div className="fraction-bar" style=${{ gridTemplateColumns: `repeat(${model.total}, minmax(0, 1fr))` }}>
+                    ${Array.from({ length: model.total }).map((_, index) => html`
+                      <span className=${index < model.filled ? "filled" : ""}></span>
+                    `)}
+                  </div>
+                </div>
+              `)}
+            </div>
+          `
+        : null}
+
+      ${visual.type === "decimal-grid"
+        ? html`
+            <div className="decimal-visual-wrap">
+              <div className="decimal-grid">
+                ${Array.from({ length: 100 }).map((_, index) => html`
+                  <span className=${index < visual.filled ? "filled" : ""}></span>
+                `)}
+              </div>
+              <div className="visual-model-card compact-card">
+                <strong>${visual.valueLabel}</strong>
+                <p>${visual.filled} shaded squares out of 100 hundredths.</p>
+              </div>
+            </div>
+          `
+        : null}
+    </article>
+  `;
 }
 
 createRoot(document.getElementById("app")).render(html`<${App} />`);

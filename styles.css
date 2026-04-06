@@ -478,6 +478,76 @@ button {
   min-height: 420px;
 }
 
+.intro-visual-card {
+  display: grid;
+  gap: 18px;
+}
+
+.fraction-visual-row,
+.decimal-visual-wrap {
+  display: grid;
+  gap: 18px;
+}
+
+.fraction-visual-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.visual-model-card {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  border-radius: 20px;
+  background: #f6fbff;
+  border: 2px solid rgba(59, 121, 242, 0.16);
+}
+
+.compact-card {
+  max-width: 240px;
+}
+
+.fraction-bar {
+  display: grid;
+  gap: 8px;
+}
+
+.fraction-bar span,
+.decimal-grid span {
+  border-radius: 6px;
+  background: rgba(59, 121, 242, 0.12);
+  border: 1px solid rgba(59, 121, 242, 0.12);
+}
+
+.fraction-bar span {
+  min-height: 72px;
+}
+
+.fraction-bar span.filled,
+.decimal-grid span.filled {
+  background: linear-gradient(180deg, #56a0ff, #2d63dd);
+}
+
+.decimal-visual-wrap {
+  grid-template-columns: auto 240px;
+  align-items: start;
+}
+
+.decimal-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 18px);
+  gap: 4px;
+  padding: 18px;
+  border-radius: 20px;
+  background: #f6fbff;
+  border: 2px solid rgba(59, 121, 242, 0.16);
+  width: max-content;
+}
+
+.decimal-grid span {
+  width: 18px;
+  height: 18px;
+}
+
 .banner-card {
   display: flex;
   align-items: center;
@@ -1025,6 +1095,8 @@ textarea {
   .three-grid,
   .two-by-two,
   .levels-grid,
+  .fraction-visual-row,
+  .decimal-visual-wrap,
   .plan-grid {
     grid-template-columns: 1fr;
   }

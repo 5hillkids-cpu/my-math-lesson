@@ -36,6 +36,15 @@ export const lessonDecks = {
       ["Denominator", "Bottom number"],
       ["Common", "Shared by all"],
     ],
+    introVisual: {
+      type: "fraction-area",
+      title: "Visual Launch",
+      description: "Area models show how much of one whole is shaded when the whole is split into equal parts.",
+      models: [
+        { label: "3/4", total: 4, filled: 3 },
+        { label: "2/3", total: 3, filled: 2 },
+      ],
+    },
     warmup: {
       timerSeconds: 120,
       tip: "Look for common denominators when adding or subtracting fractions. Find the least common multiple first.",
@@ -167,6 +176,13 @@ export const lessonDecks = {
       ["Place value", "A digit’s value by position"],
       ["Estimate", "A close answer"],
     ],
+    introVisual: {
+      type: "decimal-grid",
+      title: "Visual Launch",
+      description: "A 10 by 10 grid shows hundredths. The shaded squares help students see decimal values as parts of one whole.",
+      valueLabel: "0.37",
+      filled: 37,
+    },
     warmup: {
       timerSeconds: 150,
       tip: "Line up decimal points before adding or subtracting. Estimate first so you know if your answer makes sense.",
