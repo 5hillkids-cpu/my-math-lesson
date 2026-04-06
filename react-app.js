@@ -29,6 +29,11 @@ function createDeckState(deck) {
     bonusProblems: [],
     stepKey: "step-1",
     hintIndex: 0,
+    fractionView: deck.id === "fractions" ? "circle" : "standard",
+    helpOpen: false,
+    currentStreak: 0,
+    bestStreak: 0,
+    levelBadges: 0,
     lastSavedAt: Date.now(),
   };
 }
@@ -39,6 +44,59 @@ function createInitialState() {
     decks: Object.fromEntries(
       Object.values(lessonDecks).map((deck) => [deck.id, createDeckState(deck)]),
     ),
+  };
+}
+
+function clampNumber(value, min, max, fallback) {
+  if (typeof value !== "number" || Number.isNaN(value)) {
+    return fallback;
+  }
+
+  return Math.max(min, Math.min(value, max));
+}
+
+function normalizeDeckState(savedDeck, fallbackDeck, deck) {
+  return {
+    ...fallbackDeck,
+    ...(savedDeck || {}),
+    currentSlide: clampNumber(savedDeck?.currentSlide, 0, slideOrder.length - 1, fallbackDeck.currentSlide),
+    answers: {
+      warmup: {
+        ...fallbackDeck.answers.warmup,
+        ...(savedDeck?.answers?.warmup || {}),
+      },
+      story: {
+        ...fallbackDeck.answers.story,
+        ...(savedDeck?.answers?.story || {}),
+      },
+      team: {
+        ...fallbackDeck.answers.team,
+        ...(savedDeck?.answers?.team || {}),
+      },
+      independent: {
+        ...fallbackDeck.answers.independent,
+        ...(savedDeck?.answers?.independent || {}),
+      },
+    },
+    feedback: {
+      ...fallbackDeck.feedback,
+      ...(savedDeck?.feedback || {}),
+    },
+    notes: {
+      ...fallbackDeck.notes,
+      ...(savedDeck?.notes || {}),
+    },
+    solved: Array.isArray(savedDeck?.solved) ? savedDeck.solved.filter((entry) => typeof entry === "string") : fallbackDeck.solved,
+    bonusProblems: Array.isArray(savedDeck?.bonusProblems) ? savedDeck.bonusProblems.slice(0, 2) : fallbackDeck.bonusProblems,
+    confidence: typeof savedDeck?.confidence === "string" ? savedDeck.confidence : fallbackDeck.confidence,
+    stepKey: deck.powerup.strategyCopy[savedDeck?.stepKey] ? savedDeck.stepKey : fallbackDeck.stepKey,
+    hintIndex: clampNumber(savedDeck?.hintIndex, 0, deck.boss.hints.length - 1, fallbackDeck.hintIndex),
+    fractionView: savedDeck?.fractionView === "number-line" ? "number-line" : fallbackDeck.fractionView,
+    helpOpen: Boolean(savedDeck?.helpOpen),
+    currentStreak: clampNumber(savedDeck?.currentStreak, 0, 999, fallbackDeck.currentStreak),
+    bestStreak: clampNumber(savedDeck?.bestStreak, 0, 999, fallbackDeck.bestStreak),
+    levelBadges: clampNumber(savedDeck?.levelBadges, 0, 99, fallbackDeck.levelBadges),
+    lastSavedAt: typeof savedDeck?.lastSavedAt === "number" ? savedDeck.lastSavedAt : fallbackDeck.lastSavedAt,
   };
 }
 
@@ -55,18 +113,7 @@ function loadState() {
     merged.activeDeckId = parsed.activeDeckId && lessonDecks[parsed.activeDeckId] ? parsed.activeDeckId : fallback.activeDeckId;
 
     Object.keys(lessonDecks).forEach((deckId) => {
-      merged.decks[deckId] = {
-        ...merged.decks[deckId],
-        ...(parsed.decks?.[deckId] || {}),
-        feedback: {
-          ...merged.decks[deckId].feedback,
-          ...(parsed.decks?.[deckId]?.feedback || {}),
-        },
-        notes: {
-          ...merged.decks[deckId].notes,
-          ...(parsed.decks?.[deckId]?.notes || {}),
-        },
-      };
+      merged.decks[deckId] = normalizeDeckState(parsed.decks?.[deckId], merged.decks[deckId], lessonDecks[deckId]);
     });
 
     return merged;
@@ -83,13 +130,50 @@ function uniquePush(list, value) {
   return list.includes(value) ? list : [...list, value];
 }
 
+function applySolvedAttempt(currentDeck, solvedKey, isCorrect) {
+  const alreadySolved = currentDeck.solved.includes(solvedKey);
+  let solved = currentDeck.solved;
+  let currentStreak = currentDeck.currentStreak;
+  let bestStreak = currentDeck.bestStreak;
+  let levelBadges = currentDeck.levelBadges;
+
+  if (isCorrect) {
+    if (!alreadySolved) {
+      solved = uniquePush(solved, solvedKey);
+      currentStreak += 1;
+      bestStreak = Math.max(bestStreak, currentStreak);
+      if (currentStreak % 5 === 0) {
+        levelBadges += 1;
+      }
+    }
+  } else {
+    solved = solved.filter((entry) => entry !== solvedKey);
+    currentStreak = 0;
+  }
+
+  return {
+    solved,
+    currentStreak,
+    bestStreak,
+    levelBadges,
+  };
+}
+
 function App() {
   const [appState, setAppState] = useState(loadState);
   const deck = lessonDecks[appState.activeDeckId];
   const deckState = appState.decks[deck.id];
+  const usesPlaceValueGrid = deck.id === "decimals";
+  const nextBadgeIn = deckState.currentStreak > 0 && deckState.currentStreak % 5 === 0
+    ? 5
+    : 5 - (deckState.currentStreak % 5 || 0);
 
   useEffect(() => {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+    } catch {
+      // Ignore storage failures so the app keeps rendering even in restricted browsers.
+    }
   }, [appState]);
 
   function updateDeck(mutator) {
@@ -137,62 +221,102 @@ function App() {
     }));
   }
 
-  function chooseStoryOperation(problem, operation) {
+  function toggleFractionView(view) {
     updateDeck((currentDeck) => ({
       ...currentDeck,
-      answers: {
-        ...currentDeck.answers,
-        story: {
-          ...currentDeck.answers.story,
-          [problem.id]: operation,
-        },
-      },
-      solved: operation === problem.operation
-        ? uniquePush(currentDeck.solved, `story-${problem.id}`)
-        : currentDeck.solved.filter((entry) => entry !== `story-${problem.id}`),
+      fractionView: view,
     }));
+  }
+
+  function toggleHelp() {
+    updateDeck((currentDeck) => ({
+      ...currentDeck,
+      helpOpen: !currentDeck.helpOpen,
+    }));
+  }
+
+  function chooseStoryOperation(problem, operation) {
+    updateDeck((currentDeck) => {
+      const streakState = applySolvedAttempt(currentDeck, `story-${problem.id}`, operation === problem.operation);
+      return {
+        ...currentDeck,
+        answers: {
+          ...currentDeck.answers,
+          story: {
+            ...currentDeck.answers.story,
+            [problem.id]: operation,
+          },
+        },
+        ...streakState,
+      };
+    });
   }
 
   function checkWarmup(problem) {
     const actual = normalizeAnswer(deckState.answers.warmup[problem.id]);
     const expected = normalizeAnswer(problem.answer);
 
-    updateDeck((currentDeck) => ({
-      ...currentDeck,
-      solved: actual === expected ? uniquePush(currentDeck.solved, `warmup-${problem.id}`) : currentDeck.solved,
-      feedback: {
-        ...currentDeck.feedback,
-        warmup: actual === expected
-          ? { type: "success", text: `${problem.title} is correct. Progress updated.` }
-          : { type: "error", text: actual ? "Not quite. Try using a stronger strategy and simplify if needed." : "Enter an answer first." },
-      },
-    }));
+    updateDeck((currentDeck) => {
+      const isCorrect = actual === expected;
+      const streakState = actual ? applySolvedAttempt(currentDeck, `warmup-${problem.id}`, isCorrect) : currentDeck;
+      return {
+        ...currentDeck,
+        ...(actual ? streakState : {}),
+        feedback: {
+          ...currentDeck.feedback,
+          warmup: isCorrect
+            ? { type: "success", text: `${problem.title} is correct. Progress updated.` }
+            : { type: "error", text: actual ? "Not quite. Try using a stronger strategy and simplify if needed." : "Enter an answer first." },
+        },
+      };
+    });
   }
 
   function gradeTeamWork() {
-    let correctCount = 0;
-    let nextSolved = deckState.solved;
+    updateDeck((currentDeck) => {
+      let correctCount = 0;
+      let solved = currentDeck.solved;
+      let currentStreak = currentDeck.currentStreak;
+      let bestStreak = currentDeck.bestStreak;
+      let levelBadges = currentDeck.levelBadges;
+      let hadIncorrectAttempt = false;
 
-    deck.team.problems.forEach((problem) => {
-      const actual = normalizeAnswer(deckState.answers.team[problem.id]);
-      const expected = normalizeAnswer(problem.answer);
-      if (actual && actual === expected) {
-        correctCount += 1;
-        nextSolved = uniquePush(nextSolved, `team-${problem.id}`);
-      }
-    });
+      deck.team.problems.forEach((problem) => {
+        const actual = normalizeAnswer(currentDeck.answers.team[problem.id]);
+        const expected = normalizeAnswer(problem.answer);
+        const solvedKey = `team-${problem.id}`;
 
-    updateDeck((currentDeck) => ({
-      ...currentDeck,
-      solved: nextSolved,
-      feedback: {
-        ...currentDeck.feedback,
-        team: {
-          type: correctCount === deck.team.problems.length ? "success" : "",
-          text: `${correctCount}/${deck.team.problems.length} team problems correct.`,
+        if (actual && actual === expected) {
+          correctCount += 1;
+          if (!solved.includes(solvedKey)) {
+            solved = uniquePush(solved, solvedKey);
+            currentStreak += 1;
+            bestStreak = Math.max(bestStreak, currentStreak);
+            if (currentStreak % 5 === 0) {
+              levelBadges += 1;
+            }
+          }
+        } else if (actual) {
+          hadIncorrectAttempt = true;
+          solved = solved.filter((entry) => entry !== solvedKey);
+        }
+      });
+
+      return {
+        ...currentDeck,
+        solved,
+        currentStreak: hadIncorrectAttempt ? 0 : currentStreak,
+        bestStreak,
+        levelBadges,
+        feedback: {
+          ...currentDeck.feedback,
+          team: {
+            type: correctCount === deck.team.problems.length ? "success" : "",
+            text: `${correctCount}/${deck.team.problems.length} team problems correct.`,
+          },
         },
-      },
-    }));
+      };
+    });
   }
 
   function updateNote(field, value) {
@@ -236,10 +360,6 @@ function App() {
   }
 
   function handleIndependentAnswer(problemId, expected, value) {
-    const nextSolved = normalizeAnswer(value) === normalizeAnswer(expected)
-      ? uniquePush(deckState.solved, `independent-${problemId}`)
-      : deckState.solved.filter((entry) => entry !== `independent-${problemId}`);
-
     updateDeck((currentDeck) => ({
       ...currentDeck,
       answers: {
@@ -249,7 +369,7 @@ function App() {
           [problemId]: value,
         },
       },
-      solved: nextSolved,
+      ...applySolvedAttempt(currentDeck, `independent-${problemId}`, normalizeAnswer(value) === normalizeAnswer(expected)),
     }));
   }
 
@@ -268,6 +388,7 @@ function App() {
     { label: "⭐ Problem Solver", unlocked: deckState.solved.length >= 3 },
     { label: "🧠 Strategy Star", unlocked: !!deckState.confidence || Object.values(deckState.notes).some((value) => value.trim()) },
     { label: "✔️ Accuracy King", unlocked: deckState.solved.length >= 7 },
+    { label: `🏅 Level Up x${deckState.levelBadges}`, unlocked: deckState.levelBadges > 0 },
   ]), [deckState]);
 
   const currentSlide = slideOrder[deckState.currentSlide];
@@ -275,7 +396,7 @@ function App() {
   const isLastSlide = deckState.currentSlide === slideOrder.length - 1;
   const powerupMessage = deck.powerup.strategyCopy[deckState.stepKey];
   function answerClass(section, id, expected) {
-    const value = deckState.answers[section][id] || "";
+    const value = deckState.answers[section]?.[id] || "";
     if (!value) {
       return "";
     }
@@ -353,6 +474,19 @@ function App() {
           </div>
           <p className="muted">Interactive answers, confidence checks, and achievements update live.</p>
         </section>
+
+        <section className="side-card level-up-card">
+          <div className="card-row">
+            <p className="eyebrow">Level Up</p>
+            <strong>${deckState.currentStreak} streak</strong>
+          </div>
+          <p className="muted">Earn a badge for every 5 correct problems in a row.</p>
+          <div className="badge-bank">
+            ${deckState.levelBadges
+              ? Array.from({ length: deckState.levelBadges }).map((_, index) => html`<span className="level-badge">🏅 Badge ${index + 1}</span>`)
+              : html`<span className="level-badge pending">${nextBadgeIn} more for your first badge</span>`}
+          </div>
+        </section>
       </aside>
 
       <main className="main-stage">
@@ -391,7 +525,9 @@ function App() {
         </section>
 
         <section className=${`slide-panel ${currentSlide === "goal" ? "active" : ""} theme-green`}>
-          ${deck.introVisual ? html`<${IntroVisualCard} visual=${deck.introVisual} />` : null}
+          ${deck.introVisual
+            ? html`<${IntroVisualCard} visual=${deck.introVisual} viewMode=${deckState.fractionView} onChangeView=${toggleFractionView} />`
+            : null}
           <div className="page-grid two-up">
             <article className="quest-card large">
               <div className="card-heading">
@@ -418,11 +554,36 @@ function App() {
                   <div>
                     <h3>Key Vocabulary</h3>
                   </div>
+                  ${deck.helpTopic
+                    ? html`
+                        <button type="button" className="help-icon-button" onClick=${toggleHelp} aria-label="Explain factors and multiples">
+                          ?
+                        </button>
+                      `
+                    : null}
                 </div>
                 <div className="vocab-grid">
                   ${deck.vocabulary.map(([term, meaning]) => html`<div className="mini-tile"><strong>${term}</strong><span>${meaning}</span></div>`)}
                 </div>
               </article>
+
+              ${deck.helpTopic && deckState.helpOpen
+                ? html`
+                    <article className="quest-card help-card accent-blue">
+                      <div className="card-heading">
+                        <div className="badge-icon blue">💁</div>
+                        <div>
+                          <h3>${deck.helpTopic.title}</h3>
+                        </div>
+                      </div>
+                      <div className="help-copy">
+                        <p><strong>Factors:</strong> ${deck.helpTopic.factorCopy}</p>
+                        <p><strong>Multiples:</strong> ${deck.helpTopic.multipleCopy}</p>
+                        <p><strong>Example:</strong> ${deck.helpTopic.example}</p>
+                      </div>
+                    </article>
+                  `
+                : null}
             </div>
           </div>
           <div className="floating-toast green">⭐ You’re doing great! Keep up the good work!</div>
@@ -445,12 +606,19 @@ function App() {
                 <h4>${problem.title}</h4>
                 <div className="problem-box">${problem.prompt}</div>
                 <div className="answer-row">
-                  <input
-                    className=${`answer-input ${answerClass("warmup", problem.id, problem.answer)}`}
-                    value=${deckState.answers.warmup[problem.id] || ""}
-                    onInput=${(event) => changeAnswer("warmup", problem.id, event.target.value)}
-                    placeholder="Enter your answer here..."
-                  />
+                  ${usesPlaceValueGrid
+                    ? html`<${PlaceValueInput}
+                        className=${`answer-input place-value-input ${answerClass("warmup", problem.id, problem.answer)}`}
+                        value=${deckState.answers.warmup[problem.id] || ""}
+                        onInput=${(event) => changeAnswer("warmup", problem.id, event.target.value)}
+                        placeholder="0.00"
+                      />`
+                    : html`<input
+                        className=${`answer-input ${answerClass("warmup", problem.id, problem.answer)}`}
+                        value=${deckState.answers.warmup[problem.id] || ""}
+                        onInput=${(event) => changeAnswer("warmup", problem.id, event.target.value)}
+                        placeholder="Enter your answer here..."
+                      />`}
                   <button type="button" className="check-answer" onClick=${() => checkWarmup(problem)}>Check</button>
                 </div>
               </article>
@@ -610,12 +778,19 @@ function App() {
                 <div className="problem-label green">${problem.label}</div>
                 <h4>${problem.title}</h4>
                 <div className="problem-box light-green">${problem.prompt}</div>
-                <input
-                  className=${`answer-input ${answerClass("team", problem.id, problem.answer)}`}
-                  value=${deckState.answers.team[problem.id] || ""}
-                  onInput=${(event) => changeAnswer("team", problem.id, event.target.value)}
-                  placeholder="Enter your answer here..."
-                />
+                ${usesPlaceValueGrid
+                  ? html`<${PlaceValueInput}
+                      className=${`answer-input place-value-input ${answerClass("team", problem.id, problem.answer)}`}
+                      value=${deckState.answers.team[problem.id] || ""}
+                      onInput=${(event) => changeAnswer("team", problem.id, event.target.value)}
+                      placeholder="0.00"
+                    />`
+                  : html`<input
+                      className=${`answer-input ${answerClass("team", problem.id, problem.answer)}`}
+                      value=${deckState.answers.team[problem.id] || ""}
+                      onInput=${(event) => changeAnswer("team", problem.id, event.target.value)}
+                      placeholder="Enter your answer here..."
+                    />`}
               </article>
             `)}
           </div>
@@ -775,12 +950,20 @@ function App() {
                   <div className="mini-problem">
                     <span>${problem.number}</span>
                     <p>${problem.prompt}</p>
-                    <input
-                      className=${`mini-answer ${normalizeAnswer(deckState.answers.independent[problem.id] || "") === normalizeAnswer(problem.answer) && deckState.answers.independent[problem.id] ? "success-glow" : deckState.answers.independent[problem.id] ? "error-glow" : ""}`}
-                      value=${deckState.answers.independent[problem.id] || ""}
-                      onInput=${(event) => handleIndependentAnswer(problem.id, problem.answer, event.target.value)}
-                      placeholder="Answer"
-                    />
+                    ${usesPlaceValueGrid
+                      ? html`<${PlaceValueInput}
+                          compact=${true}
+                          className=${`mini-answer place-value-input ${normalizeAnswer(deckState.answers.independent[problem.id] || "") === normalizeAnswer(problem.answer) && deckState.answers.independent[problem.id] ? "success-glow" : deckState.answers.independent[problem.id] ? "error-glow" : ""}`}
+                          value=${deckState.answers.independent[problem.id] || ""}
+                          onInput=${(event) => handleIndependentAnswer(problem.id, problem.answer, event.target.value)}
+                          placeholder="0.00"
+                        />`
+                      : html`<input
+                          className=${`mini-answer ${normalizeAnswer(deckState.answers.independent[problem.id] || "") === normalizeAnswer(problem.answer) && deckState.answers.independent[problem.id] ? "success-glow" : deckState.answers.independent[problem.id] ? "error-glow" : ""}`}
+                          value=${deckState.answers.independent[problem.id] || ""}
+                          onInput=${(event) => handleIndependentAnswer(problem.id, problem.answer, event.target.value)}
+                          placeholder="Answer"
+                        />`}
                   </div>
                 `)}
                 <p className="completion-note">${level.note}</p>
@@ -856,6 +1039,20 @@ function labelForSlide(slideId) {
   return labels[slideId];
 }
 
+function PlaceValueInput({ value, onInput, placeholder, className = "", compact = false }) {
+  return html`
+    <label className=${`place-value-wrap ${compact ? "compact" : ""}`}>
+      <span className="place-value-guides" aria-hidden="true">
+        <em>ones</em>
+        <em>.</em>
+        <em>tenths</em>
+        <em>hundredths</em>
+      </span>
+      <input className=${className} value=${value} onInput=${onInput} placeholder=${placeholder} inputMode="decimal" />
+    </label>
+  `;
+}
+
 function getSlideMeta(deck, slideId) {
   const defaultLabel = labelForSlide(slideId);
   const supportsVisual = (deck.id === "fractions" || deck.id === "decimals") && slideId === "goal";
@@ -872,7 +1069,7 @@ function getSlideMeta(deck, slideId) {
   return { label: defaultLabel, badge: "" };
 }
 
-function IntroVisualCard({ visual }) {
+function IntroVisualCard({ visual, viewMode, onChangeView }) {
   return html`
     <article className="quest-card intro-visual-card">
       <div className="card-heading">
@@ -881,6 +1078,14 @@ function IntroVisualCard({ visual }) {
           <h3>${visual.title}</h3>
           <p>${visual.description}</p>
         </div>
+        ${visual.type === "fraction-area"
+          ? html`
+              <div className="visual-toggle-group">
+                <button type="button" className=${`visual-toggle ${viewMode === "circle" ? "active" : ""}`} onClick=${() => onChangeView("circle")}>Shaded Circle</button>
+                <button type="button" className=${`visual-toggle ${viewMode === "number-line" ? "active" : ""}`} onClick=${() => onChangeView("number-line")}>Number Line</button>
+              </div>
+            `
+          : null}
       </div>
 
       ${visual.type === "fraction-area"
@@ -889,11 +1094,23 @@ function IntroVisualCard({ visual }) {
               ${visual.models.map((model) => html`
                 <div className="visual-model-card">
                   <strong>${model.label}</strong>
-                  <div className="fraction-bar" style=${{ gridTemplateColumns: `repeat(${model.total}, minmax(0, 1fr))` }}>
-                    ${Array.from({ length: model.total }).map((_, index) => html`
-                      <span className=${index < model.filled ? "filled" : ""}></span>
-                    `)}
-                  </div>
+                  ${viewMode === "number-line"
+                    ? html`
+                        <div className="number-line-track">
+                          <span className="number-line-fill" style=${{ width: `${(model.filled / model.total) * 100}%` }}></span>
+                          ${Array.from({ length: model.total + 1 }).map((_, index) => html`
+                            <span className=${`number-line-tick ${index === model.filled ? "active" : ""}`} style=${{ left: `${(index / model.total) * 100}%` }}>
+                              <em>${index === 0 ? "0" : index === model.total ? "1" : index === model.filled ? model.label : ""}</em>
+                            </span>
+                          `)}
+                        </div>
+                      `
+                    : html`
+                        <div className="fraction-circle" style=${{ background: `conic-gradient(#4d86ff 0 ${(model.filled / model.total) * 100}%, #e6f0ff ${(model.filled / model.total) * 100}% 100%)` }}>
+                          <span>${model.label}</span>
+                        </div>
+                      `}
+                  <p>${model.filled} of ${model.total} equal parts are shown.</p>
                 </div>
               `)}
             </div>
@@ -919,4 +1136,50 @@ function IntroVisualCard({ visual }) {
   `;
 }
 
-createRoot(document.getElementById("app")).render(html`<${App} />`);
+class AppErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error) {
+    console.error(error);
+  }
+
+  resetApp() {
+    try {
+      window.localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // Ignore storage failures while resetting.
+    }
+    window.location.reload();
+  }
+
+  render() {
+    if (!this.state.hasError) {
+      return this.props.children;
+    }
+
+    return html`
+      <main className="app-fallback-shell">
+        <article className="quest-card app-fallback-card">
+          <div className="card-heading">
+            <div className="badge-icon red">⚠️</div>
+            <div>
+              <h3>We hit a loading problem</h3>
+              <p>Your saved browser progress may be from an older lesson version.</p>
+            </div>
+          </div>
+          <p>Press reset to clear the old saved state and reload the lesson.</p>
+          <button type="button" className="cta-pill" onClick=${() => this.resetApp()}>Reset saved progress and reload</button>
+        </article>
+      </main>
+    `;
+  }
+}
+
+createRoot(document.getElementById("app")).render(html`<${AppErrorBoundary}><${App} /></${AppErrorBoundary}>`);

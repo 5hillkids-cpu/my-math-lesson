@@ -36,6 +36,12 @@ export const lessonDecks = {
       ["Denominator", "Bottom number"],
       ["Common", "Shared by all"],
     ],
+    helpTopic: {
+      title: "Factors vs. Multiples",
+      factorCopy: "Factors are numbers you can multiply together to make a product. They divide the product evenly.",
+      multipleCopy: "Multiples are the results you get when you count by a number again and again.",
+      example: "For 12, the factors are 1, 2, 3, 4, 6, and 12. Multiples of 12 are 12, 24, 36, and 48.",
+    },
     introVisual: {
       type: "fraction-area",
       title: "Visual Launch",
