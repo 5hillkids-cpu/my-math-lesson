@@ -254,8 +254,6 @@ function App() {
 
   const currentSlide = slideOrder[deckState.currentSlide];
   const powerupMessage = deck.powerup.strategyCopy[deckState.stepKey];
-  const lastSaved = new Date(deckState.lastSavedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-
   function answerClass(section, id, expected) {
     const value = deckState.answers[section][id] || "";
     if (!value) {
@@ -317,7 +315,6 @@ function App() {
             <div className="progress-fill" style=${{ width: `${progress.percent}%` }}></div>
           </div>
           <p className="muted">Interactive answers, confidence checks, and achievements update live.</p>
-          <div className="saved-pill">Saved locally at ${lastSaved}</div>
         </section>
       </aside>
 
