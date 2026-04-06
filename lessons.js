@@ -36,7 +36,6 @@ export const lessonDecks = {
       ["Denominator", "Bottom number"],
       ["Common", "Shared by all"],
     ],
-    materials: ["✏️ Pencil", "📏 Ruler", "🧮 Calculator", "🗒️ Sticky Notes", "📉 Graph Paper"],
     warmup: {
       timerSeconds: 120,
       tip: "Look for common denominators when adding or subtracting fractions. Find the least common multiple first.",
@@ -68,10 +67,10 @@ export const lessonDecks = {
       title: "Team Solve",
       subtitle: "Work with a partner to solve these problems together.",
       problems: [
-        { id: "t1", label: "A", title: "Problem A", prompt: "3/4 + 1/8 = ?", answer: "7/8" },
-        { id: "t2", label: "B", title: "Problem B", prompt: "2/3 × 6/7 = ?", answer: "4/7" },
-        { id: "t3", label: "C", title: "Problem C", prompt: "5/6 - 1/4 = ?", answer: "7/12" },
-        { id: "t4", label: "D", title: "Problem D", prompt: "4/5 ÷ 2/3 = ?", answer: "6/5" },
+        { id: "t1", label: "A", title: "Problem A", prompt: "1/2 + 3/10 = ?", answer: "4/5" },
+        { id: "t2", label: "B", title: "Problem B", prompt: "3/5 × 5/9 = ?", answer: "1/3" },
+        { id: "t3", label: "C", title: "Problem C", prompt: "7/8 - 1/2 = ?", answer: "3/8" },
+        { id: "t4", label: "D", title: "Problem D", prompt: "3/4 ÷ 1/2 = ?", answer: "3/2" },
       ],
     },
     finalCheck: {
@@ -98,8 +97,8 @@ export const lessonDecks = {
           accent: "green",
           note: "✔️ Check your work with a partner",
           problems: [
-            { id: "i1", number: "1", prompt: "3/4 + 1/8 = ?", answer: "7/8" },
-            { id: "i2", number: "2", prompt: "2/3 × 6/7 = ?", answer: "4/7" },
+            { id: "i1", number: "1", prompt: "1/3 + 1/6 = ?", answer: "1/2" },
+            { id: "i2", number: "2", prompt: "4/9 × 3/8 = ?", answer: "1/6" },
           ],
         },
         {
@@ -109,8 +108,8 @@ export const lessonDecks = {
           accent: "gold",
           note: "✔️ Show your strategy",
           problems: [
-            { id: "i3", number: "3", prompt: "5/6 - 1/4 = ?", answer: "7/12" },
-            { id: "i4", number: "4", prompt: "4/5 ÷ 2/3 = ?", answer: "6/5" },
+            { id: "i3", number: "3", prompt: "11/12 - 1/3 = ?", answer: "7/12" },
+            { id: "i4", number: "4", prompt: "5/6 ÷ 5/12 = ?", answer: "2" },
           ],
         },
         {
@@ -120,7 +119,7 @@ export const lessonDecks = {
           accent: "red",
           note: "✔️ Explain your reasoning",
           problems: [
-            { id: "i5", number: "5", prompt: "3/4 + 2/5 - 1/10 = ?", answer: "21/20" },
+            { id: "i5", number: "5", prompt: "2/3 + 3/4 - 1/6 = ?", answer: "5/4" },
           ],
         },
       ],
@@ -152,7 +151,6 @@ export const lessonDecks = {
       ["Place value", "A digit’s value by position"],
       ["Estimate", "A close answer"],
     ],
-    materials: ["✏️ Pencil", "🧮 Calculator", "📊 Place value chart", "🗂️ Task cards"],
     warmup: {
       timerSeconds: 150,
       tip: "Line up decimal points before adding or subtracting. Estimate first so you know if your answer makes sense.",
@@ -184,10 +182,10 @@ export const lessonDecks = {
       title: "Partner Precision",
       subtitle: "Work with a partner to solve decimal problems together.",
       problems: [
-        { id: "t1", label: "A", title: "Problem A", prompt: "2.4 + 1.38 = ?", answer: "3.78" },
-        { id: "t2", label: "B", title: "Problem B", prompt: "5.2 - 0.67 = ?", answer: "4.53" },
-        { id: "t3", label: "C", title: "Problem C", prompt: "0.6 × 0.4 = ?", answer: "0.24" },
-        { id: "t4", label: "D", title: "Problem D", prompt: "1.25 + 2.8 = ?", answer: "4.05" },
+        { id: "t1", label: "A", title: "Problem A", prompt: "4.7 + 2.06 = ?", answer: "6.76" },
+        { id: "t2", label: "B", title: "Problem B", prompt: "8.3 - 1.45 = ?", answer: "6.85" },
+        { id: "t3", label: "C", title: "Problem C", prompt: "0.9 × 0.5 = ?", answer: "0.45" },
+        { id: "t4", label: "D", title: "Problem D", prompt: "6.08 + 0.32 = ?", answer: "6.4" },
       ],
     },
     finalCheck: {
@@ -214,8 +212,8 @@ export const lessonDecks = {
           accent: "green",
           note: "✔️ Compare your estimate first",
           problems: [
-            { id: "i1", number: "1", prompt: "1.4 + 0.6 = ?", answer: "2.0" },
-            { id: "i2", number: "2", prompt: "3.2 - 1.1 = ?", answer: "2.1" },
+            { id: "i1", number: "1", prompt: "2.1 + 0.4 = ?", answer: "2.5" },
+            { id: "i2", number: "2", prompt: "7.0 - 2.8 = ?", answer: "4.2" },
           ],
         },
         {
@@ -225,8 +223,8 @@ export const lessonDecks = {
           accent: "gold",
           note: "✔️ Show your place value thinking",
           problems: [
-            { id: "i3", number: "3", prompt: "4.85 + 0.9 = ?", answer: "5.75" },
-            { id: "i4", number: "4", prompt: "6.4 - 2.78 = ?", answer: "3.62" },
+            { id: "i3", number: "3", prompt: "3.45 + 1.27 = ?", answer: "4.72" },
+            { id: "i4", number: "4", prompt: "9.6 - 3.84 = ?", answer: "5.76" },
           ],
         },
         {
@@ -236,7 +234,7 @@ export const lessonDecks = {
           accent: "red",
           note: "✔️ Explain why the decimal points matter",
           problems: [
-            { id: "i5", number: "5", prompt: "1.25 + 2.8 - 0.45 = ?", answer: "3.6" },
+            { id: "i5", number: "5", prompt: "2.75 + 1.6 - 0.85 = ?", answer: "3.5" },
           ],
         },
       ],
@@ -268,7 +266,6 @@ export const lessonDecks = {
       ["Vertex", "A corner point"],
       ["Right angle", "An exact square corner"],
     ],
-    materials: ["✏️ Pencil", "📏 Ruler", "📐 Protractor", "🧩 Shape tiles"],
     warmup: {
       timerSeconds: 180,
       tip: "Count all outer sides for perimeter. Look for angle clues to classify shapes.",
@@ -300,10 +297,10 @@ export const lessonDecks = {
       title: "Shape Squad",
       subtitle: "Work together to classify and measure shapes.",
       problems: [
-        { id: "t1", label: "A", title: "Problem A", prompt: "Square with side 5 cm. Perimeter = ?", answer: "20" },
-        { id: "t2", label: "B", title: "Problem B", prompt: "How many vertices does a pentagon have?", answer: "5" },
-        { id: "t3", label: "C", title: "Problem C", prompt: "How many right angles does a rectangle have?", answer: "4" },
-        { id: "t4", label: "D", title: "Problem D", prompt: "Triangle sides 4, 4, and 6. Perimeter = ?", answer: "14" },
+        { id: "t1", label: "A", title: "Problem A", prompt: "Rectangle with sides 9 cm and 2 cm. Perimeter = ?", answer: "22" },
+        { id: "t2", label: "B", title: "Problem B", prompt: "How many sides does a pentagon have?", answer: "5" },
+        { id: "t3", label: "C", title: "Problem C", prompt: "How many vertices does a rectangle have?", answer: "4" },
+        { id: "t4", label: "D", title: "Problem D", prompt: "Triangle sides 6, 5, and 4. Perimeter = ?", answer: "15" },
       ],
     },
     finalCheck: {
@@ -330,8 +327,8 @@ export const lessonDecks = {
           accent: "green",
           note: "✔️ Label your units",
           problems: [
-            { id: "i1", number: "1", prompt: "Perimeter of a square with side 4 cm = ?", answer: "16" },
-            { id: "i2", number: "2", prompt: "How many sides does a hexagon have?", answer: "6" },
+            { id: "i1", number: "1", prompt: "Perimeter of an equilateral triangle with side 5 cm = ?", answer: "15" },
+            { id: "i2", number: "2", prompt: "How many sides does an octagon have?", answer: "8" },
           ],
         },
         {
@@ -341,8 +338,8 @@ export const lessonDecks = {
           accent: "gold",
           note: "✔️ Explain the attributes you used",
           problems: [
-            { id: "i3", number: "3", prompt: "Rectangle 7 by 2. Perimeter = ?", answer: "18" },
-            { id: "i4", number: "4", prompt: "How many vertices does an octagon have?", answer: "8" },
+            { id: "i3", number: "3", prompt: "Rectangle 10 by 3. Perimeter = ?", answer: "26" },
+            { id: "i4", number: "4", prompt: "How many vertices does a hexagon have?", answer: "6" },
           ],
         },
         {
@@ -352,7 +349,7 @@ export const lessonDecks = {
           accent: "red",
           note: "✔️ Explain how you checked your answer",
           problems: [
-            { id: "i5", number: "5", prompt: "Triangle sides 5, 6, and 7. Perimeter = ?", answer: "18" },
+            { id: "i5", number: "5", prompt: "A pentagon has five sides of 4 cm each. Perimeter = ?", answer: "20" },
           ],
         },
       ],

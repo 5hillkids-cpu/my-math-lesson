@@ -9,7 +9,6 @@ const STORAGE_KEY = "math-quest-react-state-v1";
 function createDeckState(deck) {
   return {
     currentSlide: 0,
-    timerSeconds: deck.warmup.timerSeconds,
     answers: {
       warmup: {},
       team: {},
@@ -91,26 +90,6 @@ function App() {
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
   }, [appState]);
-
-  useEffect(() => {
-    const timer = window.setInterval(() => {
-      setAppState((current) => {
-        const next = { ...current, decks: { ...current.decks } };
-
-        Object.keys(lessonDecks).forEach((deckId) => {
-          const currentDeck = next.decks[deckId];
-          next.decks[deckId] = {
-            ...currentDeck,
-            timerSeconds: Math.max(0, currentDeck.timerSeconds - 1),
-          };
-        });
-
-        return next;
-      });
-    }, 1000);
-
-    return () => window.clearInterval(timer);
-  }, []);
 
   function updateDeck(mutator) {
     setAppState((current) => {
@@ -269,12 +248,10 @@ function App() {
 
   const achievements = useMemo(() => ([
     { label: "⭐ Problem Solver", unlocked: deckState.solved.length >= 3 },
-    { label: "⚡ Speed Master", unlocked: deckState.timerSeconds > 0 && deckState.solved.length >= 3 },
+    { label: "🧠 Strategy Star", unlocked: !!deckState.confidence || Object.values(deckState.notes).some((value) => value.trim()) },
     { label: "✔️ Accuracy King", unlocked: deckState.solved.length >= 7 },
   ]), [deckState]);
 
-  const minutes = Math.floor(deckState.timerSeconds / 60);
-  const seconds = String(deckState.timerSeconds % 60).padStart(2, "0");
   const currentSlide = slideOrder[deckState.currentSlide];
   const powerupMessage = deck.powerup.strategyCopy[deckState.stepKey];
   const lastSaved = new Date(deckState.lastSavedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
@@ -353,14 +330,6 @@ function App() {
               <p>${deck.topbarSubtitle}</p>
             </div>
           </div>
-
-          <div className="topbar-meta-stack">
-            <div className="topbar-meta">
-              <span>📅 ${deck.lessonDate}</span>
-              <span>🕙 ${deck.lessonTime}</span>
-              <span>👩‍🏫 ${deck.grade}</span>
-            </div>
-          </div>
         </header>
 
         <section className=${`slide-panel ${currentSlide === "landing" ? "active" : ""} theme-blue`}>
@@ -419,18 +388,6 @@ function App() {
                   ${deck.vocabulary.map(([term, meaning]) => html`<div className="mini-tile"><strong>${term}</strong><span>${meaning}</span></div>`)}
                 </div>
               </article>
-
-              <article className="quest-card">
-                <div className="card-heading">
-                  <div className="badge-icon blue">🧰</div>
-                  <div>
-                    <h3>Materials Needed</h3>
-                  </div>
-                </div>
-                <div className="chip-row">
-                  ${deck.materials.map((item) => html`<span className="chip">${item}</span>`)}
-                </div>
-              </article>
             </div>
           </div>
           <div className="floating-toast green">⭐ You’re doing great! Keep up the good work!</div>
@@ -444,7 +401,6 @@ function App() {
                 <h3>Warm-Up Challenge</h3>
               </div>
             </div>
-            <div className="timer-pill">⏱️ Solve these in <strong>${minutes}:${seconds}</strong></div>
           </article>
 
           <div className="three-grid">
@@ -598,7 +554,6 @@ function App() {
                 <p>One last problem to show what you know.</p>
               </div>
             </div>
-            <div className="timer-pill">⏰ 5 minutes</div>
           </article>
 
           <div className="page-grid two-up final-grid">
@@ -635,16 +590,6 @@ function App() {
                     <button type="button" className=${`confidence-option ${deckState.confidence === level ? "selected" : ""}`} onClick=${() => setConfidence(level)}>${label}<span>${note}</span></button>
                   `)}
                 </div>
-              </article>
-
-              <article className="quest-card accent-gold">
-                <div className="card-heading">
-                  <div className="badge-icon gold">📋</div>
-                  <div>
-                    <h3>Teacher Note</h3>
-                  </div>
-                </div>
-                <p>${deck.finalCheck.teacherNote}</p>
               </article>
 
               <article className="quest-card accent-orange">
