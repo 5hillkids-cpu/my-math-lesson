@@ -210,12 +210,6 @@ function App() {
     }));
   }
 
-  function goToNextLesson() {
-    const currentIndex = deckIds.indexOf(deck.id);
-    const nextDeckId = deckIds[(currentIndex + 1) % deckIds.length];
-    switchDeck(nextDeckId);
-  }
-
   function showSlide(index) {
     updateDeck((currentDeck) => ({
       ...currentDeck,
@@ -1033,7 +1027,7 @@ function App() {
           <div className="dot-nav">
             ${slideOrder.map((slideId, index) => html`<button type="button" className=${index === deckState.currentSlide ? "active" : ""} onClick=${() => showSlide(index)} aria-label=${`Go to ${labelForSlide(slideId)}`}></button>`)}
           </div>
-          <button type="button" className="nav-button primary" onClick=${() => isLastSlide ? goToNextLesson() : showSlide(deckState.currentSlide + 1)}>${isLastSlide ? "Next Lesson →" : "Next →"}</button>
+          <button type="button" className="nav-button primary" disabled=${isLastSlide} onClick=${() => showSlide(deckState.currentSlide + 1)}>Next →</button>
         </footer>
       </main>
     </div>
