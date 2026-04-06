@@ -682,6 +682,59 @@ textarea:focus {
   gap: 12px;
 }
 
+.story-problems-card {
+  display: grid;
+  gap: 18px;
+}
+
+.story-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.story-card {
+  display: grid;
+  gap: 14px;
+  padding: 20px;
+  border-radius: 22px;
+  background: #f8fbff;
+  border: 2px solid rgba(59, 121, 242, 0.14);
+}
+
+.story-prompt {
+  font-size: 1.02rem;
+  line-height: 1.5;
+}
+
+.operation-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.operation-button {
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: #edf4ff;
+  color: var(--blue-deep);
+  font-weight: 800;
+}
+
+.operation-button.selected {
+  box-shadow: inset 0 0 0 2px rgba(59, 121, 242, 0.22);
+}
+
+.operation-button.correct {
+  background: #e5f9ec;
+  color: #10753b;
+}
+
+.operation-button.incorrect {
+  background: #ffe7e7;
+  color: #b42323;
+}
+
 .answer-row {
   display: flex;
   gap: 10px;
@@ -1014,7 +1067,8 @@ textarea {
   .vocab-grid,
   .step-tabs,
   .mini-problem,
-  .mini-problem.long {
+  .mini-problem.long,
+  .story-grid {
     grid-template-columns: 1fr;
   }
 

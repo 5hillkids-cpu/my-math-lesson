@@ -50,6 +50,22 @@ export const lessonDecks = {
       title: "Math Power-Up",
       subtitle: "Today’s Mission: Master Fraction Operations",
       exampleProblem: "3/4 + 2/5 = ?",
+      storyProblems: [
+        {
+          id: "s1",
+          title: "Story Problem 1",
+          prompt: "A recipe needs 2/3 cup of sugar for one batch. Maya makes 3 batches. Which operation should she use to find the total sugar needed?",
+          operation: "multiply",
+          why: "She has the same amount, 2/3 cup, repeated 3 times, so she should multiply.",
+        },
+        {
+          id: "s2",
+          title: "Story Problem 2",
+          prompt: "Leo has 5/6 yard of ribbon and uses 1/3 yard for a project. Which operation should he use to find how much ribbon is left?",
+          operation: "subtract",
+          why: "He starts with an amount and takes some away, so he should subtract.",
+        },
+      ],
       strategyCopy: {
         "step-1": "Find the LCD: The least common denominator of 4 and 5 is 20.",
         "step-2": "Convert: 3/4 becomes 15/20 and 2/5 becomes 8/20.",
@@ -165,6 +181,22 @@ export const lessonDecks = {
       title: "Decimal Power-Up",
       subtitle: "Today’s Mission: Make Place Value Work for You",
       exampleProblem: "3.6 + 0.45 = ?",
+      storyProblems: [
+        {
+          id: "s1",
+          title: "Story Problem 1",
+          prompt: "A tank has 4.5 liters of water. Sam pours in 1.25 more liters. Which operation should she use to find the new total?",
+          operation: "add",
+          why: "The amount is increasing because more water is being added, so she should add.",
+        },
+        {
+          id: "s2",
+          title: "Story Problem 2",
+          prompt: "A runner finished 8.2 kilometers of a race and still has 1.75 kilometers left. Which operation should she use to find the full race distance?",
+          operation: "add",
+          why: "To find the whole distance, she combines the part finished and the part left, so she should add.",
+        },
+      ],
       strategyCopy: {
         "step-1": "Line up decimals: Write 3.60 + 0.45 so each place value matches.",
         "step-2": "Add place by place: Hundredths first, then tenths, then ones.",

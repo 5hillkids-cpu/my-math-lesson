@@ -11,6 +11,7 @@ function createDeckState(deck) {
     currentSlide: 0,
     answers: {
       warmup: {},
+      story: {},
       team: {},
       independent: {},
     },
@@ -136,6 +137,22 @@ function App() {
     }));
   }
 
+  function chooseStoryOperation(problem, operation) {
+    updateDeck((currentDeck) => ({
+      ...currentDeck,
+      answers: {
+        ...currentDeck.answers,
+        story: {
+          ...currentDeck.answers.story,
+          [problem.id]: operation,
+        },
+      },
+      solved: operation === problem.operation
+        ? uniquePush(currentDeck.solved, `story-${problem.id}`)
+        : currentDeck.solved.filter((entry) => entry !== `story-${problem.id}`),
+    }));
+  }
+
   function checkWarmup(problem) {
     const actual = normalizeAnswer(deckState.answers.warmup[problem.id]);
     const expected = normalizeAnswer(problem.answer);
@@ -239,12 +256,13 @@ function App() {
   const progress = useMemo(() => {
     const noteCount = Object.values(deckState.notes).filter((value) => value.trim()).length;
     const confidenceCount = deckState.confidence ? 1 : 0;
+    const storyCount = deck.powerup.storyProblems ? deck.powerup.storyProblems.length : 0;
     const totalCompleted = deckState.solved.length + noteCount + confidenceCount;
-    const totalPossible = 16;
+    const totalPossible = 16 + storyCount;
     const percent = Math.min(100, Math.round((totalCompleted / totalPossible) * 100));
     const levelsDone = Math.min(4, Math.round((percent / 100) * 4));
     return { percent, levelsDone };
-  }, [deckState]);
+  }, [deck, deckState]);
 
   const achievements = useMemo(() => ([
     { label: "⭐ Problem Solver", unlocked: deckState.solved.length >= 3 },
@@ -518,6 +536,51 @@ function App() {
               </div>
             </article>
           </div>
+
+          ${deck.powerup.storyProblems && deck.powerup.storyProblems.length
+            ? html`
+              <article className="quest-card story-problems-card">
+                <div className="card-heading">
+                  <div className="badge-icon orange">📚</div>
+                  <div>
+                    <h3>Story Problems</h3>
+                    <p>Read each situation and identify the operation you should use.</p>
+                  </div>
+                </div>
+                <div className="story-grid">
+                  ${deck.powerup.storyProblems.map((problem) => {
+                    const selected = deckState.answers.story[problem.id] || "";
+                    const isCorrect = selected === problem.operation;
+                    return html`
+                      <article className="story-card">
+                        <p className="eyebrow">${problem.title}</p>
+                        <p className="story-prompt">${problem.prompt}</p>
+                        <div className="operation-row">
+                          ${[
+                            ["add", "Add"],
+                            ["subtract", "Subtract"],
+                            ["multiply", "Multiply"],
+                            ["divide", "Divide"],
+                          ].map(([value, label]) => html`
+                            <button
+                              type="button"
+                              className=${`operation-button ${selected === value ? "selected" : ""} ${selected && selected === value && value === problem.operation ? "correct" : ""} ${selected && selected === value && value !== problem.operation ? "incorrect" : ""}`}
+                              onClick=${() => chooseStoryOperation(problem, value)}
+                            >
+                              ${label}
+                            </button>
+                          `)}
+                        </div>
+                        ${selected
+                          ? html`<p className=${`feedback-text ${isCorrect ? "success" : "error"}`}>${isCorrect ? `Correct. ${problem.why}` : `Try again. ${problem.why}`}</p>`
+                          : html`<p className="feedback-text">Choose the operation that matches the story.</p>`}
+                      </article>
+                    `;
+                  })}
+                </div>
+              </article>
+            `
+            : null}
         </section>
 
         <section className=${`slide-panel ${currentSlide === "team" ? "active" : ""} theme-green`}>
