@@ -163,6 +163,7 @@ function App() {
   const [appState, setAppState] = useState(loadState);
   const deck = lessonDecks[appState.activeDeckId];
   const deckState = appState.decks[deck.id];
+  const deckIds = Object.keys(lessonDecks);
   const usesPlaceValueGrid = deck.id === "decimals";
   const nextBadgeIn = deckState.currentStreak > 0 && deckState.currentStreak % 5 === 0
     ? 5
@@ -198,7 +199,21 @@ function App() {
     setAppState((current) => ({
       ...current,
       activeDeckId: deckId,
+      decks: {
+        ...current.decks,
+        [deckId]: {
+          ...current.decks[deckId],
+          currentSlide: 0,
+          lastSavedAt: Date.now(),
+        },
+      },
     }));
+  }
+
+  function goToNextLesson() {
+    const currentIndex = deckIds.indexOf(deck.id);
+    const nextDeckId = deckIds[(currentIndex + 1) % deckIds.length];
+    switchDeck(nextDeckId);
   }
 
   function showSlide(index) {
@@ -1007,7 +1022,7 @@ function App() {
               <div className="badge-icon gold">🧭</div>
               <div>
                 <h3>Lesson Complete</h3>
-                <p>Choose your next lesson from the left menu when you are ready to continue.</p>
+                <p>You can choose another lesson from the menu or use Next to jump right into the next lesson.</p>
               </div>
             </div>
           </article>
@@ -1018,7 +1033,7 @@ function App() {
           <div className="dot-nav">
             ${slideOrder.map((slideId, index) => html`<button type="button" className=${index === deckState.currentSlide ? "active" : ""} onClick=${() => showSlide(index)} aria-label=${`Go to ${labelForSlide(slideId)}`}></button>`)}
           </div>
-          <button type="button" className="nav-button primary" disabled=${isLastSlide} onClick=${() => showSlide(deckState.currentSlide + 1)}>${isLastSlide ? "Pick Next Lesson" : "Next →"}</button>
+          <button type="button" className="nav-button primary" onClick=${() => isLastSlide ? goToNextLesson() : showSlide(deckState.currentSlide + 1)}>${isLastSlide ? "Next Lesson →" : "Next →"}</button>
         </footer>
       </main>
     </div>
