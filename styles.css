@@ -170,7 +170,9 @@ button {
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.08);
   color: inherit;
-  transition: transform 0.2s ease, background 0.2s ease;
+  border: 2px solid transparent;
+  position: relative;
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .slide-link strong {
@@ -181,6 +183,24 @@ button {
 .slide-link:hover {
   background: rgba(255, 255, 255, 0.18);
   transform: translateX(4px);
+}
+
+.slide-link.active {
+  background: #ffffff;
+  color: var(--blue-deep);
+  border-color: rgba(255, 212, 56, 0.95);
+  box-shadow: 0 10px 24px rgba(9, 27, 92, 0.22);
+}
+
+.slide-link.active::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ffd438, #f9b704);
+  position: absolute;
+  left: -5px;
+  top: calc(50% - 5px);
 }
 
 .side-card {
@@ -207,7 +227,9 @@ button {
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.08);
   color: #fff;
-  transition: transform 0.2s ease, background 0.2s ease;
+  border: 2px solid transparent;
+  position: relative;
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .deck-button span {
@@ -219,6 +241,33 @@ button {
 .deck-button:hover {
   background: rgba(255, 255, 255, 0.18);
   transform: translateY(-1px);
+}
+
+.deck-button.active {
+  background: #ffffff;
+  color: var(--blue-deep);
+  border-color: rgba(255, 212, 56, 0.95);
+  box-shadow: 0 12px 26px rgba(9, 27, 92, 0.22);
+}
+
+.deck-button.active span {
+  color: var(--ink-soft);
+  opacity: 1;
+}
+
+.deck-button.active::after {
+  content: "Selected";
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffd438, #f9b704);
+  color: var(--blue-deep);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .saved-pill {
