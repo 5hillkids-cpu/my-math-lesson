@@ -967,7 +967,7 @@ function App() {
                         />`}
                   </div>
                 `)}
-                ${!(deck.id === "decimals") ? html`<p className="completion-note">${level.note}</p>` : null}
+                ${!(deck.id === "decimals" || deck.id === "fractions") ? html`<p className="completion-note">${level.note}</p>` : null}
               </article>
             `)}
           </div>
